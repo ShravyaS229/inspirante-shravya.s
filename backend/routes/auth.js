@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import db from "../db.js";
 
 const router = express.Router();
+
 const SECRET = "secretkey";
 
-// insp-verified
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -16,7 +16,7 @@ router.post("/login", (req, res) => {
       if (err || !user) {
         return res.status(401).json({
           status: "error",
-          message: "Invalid login",
+          message: "Invalid login"
         });
       }
 
@@ -27,7 +27,7 @@ router.post("/login", (req, res) => {
 
       res.json({
         status: "ok",
-        payload: { token, user },
+        payload: { token, user }
       });
     }
   );
