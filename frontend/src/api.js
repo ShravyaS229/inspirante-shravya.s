@@ -1,51 +1,109 @@
 const BASE = "http://localhost:3000/api";
 
-// LOGIN
+/* LOGIN */
 export const login = async (username, password) => {
-  const res = await fetch(`${BASE}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username, password })
-  });
+  try {
+    const res = await fetch(`${BASE}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
 
-  return res.json();
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
 };
 
-// GET EVENTS
+/* EVENTS */
 export const getEvents = async () => {
-  const res = await fetch(`${BASE}/events`);
-  return res.json();
+  try {
+    const res = await fetch(`${BASE}/events`);
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
 };
 
-// CREATE EVENT (ADMIN)
+/* CREATE EVENT */
 export const createEvent = async (data) => {
-  const res = await fetch(`${BASE}/events`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: data.name,
-      date: data.date,
-      venue: data.venue,
-      capacity: Number(data.capacity)
-    })
-  });
+  try {
+    const res = await fetch(`${BASE}/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
 
-  return res.json();
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
 };
 
-// REGISTER EVENT (STUDENT)
+/* REGISTER EVENT */
 export const registerEvent = async (user_id, event_id) => {
-  const res = await fetch(`${BASE}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ user_id, event_id })
-  });
+  try {
+    const res = await fetch(`${BASE}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ user_id, event_id })
+    });
 
-  return res.json();
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
+};
+
+/* STUDENT REGISTRATIONS */
+export const getMyRegistrations = async (userId) => {
+  try {
+    const res = await fetch(`${BASE}/register/my/${userId}`);
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
+};
+
+/* EVENT REGISTRATIONS */
+export const getEventRegistrations = async (eventId) => {
+  try {
+    const res = await fetch(`${BASE}/register/event/${eventId}`);
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "Network error"
+    };
+  }
 };
