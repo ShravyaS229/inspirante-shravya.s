@@ -3,38 +3,44 @@ import db from "../db.js";
 
 const router = express.Router();
 
-// STUDENT REGISTER FOR EVENT
 router.post("/", (req, res) => {
   const { user_id, event_id } = req.body;
 
-  // 1. check duplicate registration
   db.get(
-    "SELECT * FROM registrations WHERE user_id = ? AND event_id = ?",
+    "SELECT * FROM registrations WHERE user_id=? AND event_id=?",
     [user_id, event_id],
-    (err, row) => {
-      if (row) {
-        return res.status(400).json({
+    (err, existing) => {
+      if (existing) {
+        return res.json({
           status: "error",
           message: "Already registered"
         });
       }
 
-      // 2. insert registration
-      db.run(
-        "INSERT INTO registrations (user_id, event_id) VALUES (?, ?)",
-        [user_id, event_id],
-        function (err) {
-          if (err) {
-            return res.status(500).json({
+      db.get(
+        `SELECT e.capacity, COUNT(r.id) as count
+         FROM events e
+         LEFT JOIN registrations r ON e.id=r.event_id
+         WHERE e.id=?`,
+        [event_id],
+        (err2, data) => {
+          if (data.count >= data.capacity) {
+            return res.json({
               status: "error",
-              message: err.message
+              message: "Event full"
             });
           }
 
-          res.json({
-            status: "ok",
-            payload: { id: this.lastID }
-          });
+          db.run(
+            "INSERT INTO registrations(user_id,event_id) VALUES(?,?)",
+            [user_id, event_id],
+            function (err3) {
+              res.json({
+                status: "ok",
+                payload: { id: this.lastID }
+              });
+            }
+          );
         }
       );
     }

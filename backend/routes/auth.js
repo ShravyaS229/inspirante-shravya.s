@@ -3,27 +3,20 @@ import jwt from "jsonwebtoken";
 import db from "../db.js";
 
 const router = express.Router();
-
 const SECRET = "secretkey";
 
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   db.get(
-    "SELECT * FROM users WHERE username = ? AND password = ?",
+    "SELECT * FROM users WHERE username=? AND password=?",
     [username, password],
     (err, user) => {
       if (err || !user) {
-        return res.status(401).json({
-          status: "error",
-          message: "Invalid login"
-        });
+        return res.json({ status: "error", message: "Invalid login" });
       }
 
-      const token = jwt.sign(
-        { id: user.id, role: user.role, name: user.name },
-        SECRET
-      );
+      const token = jwt.sign(user, SECRET);
 
       res.json({
         status: "ok",

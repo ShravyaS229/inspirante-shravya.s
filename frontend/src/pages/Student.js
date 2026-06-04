@@ -1,54 +1,71 @@
 import React, { useEffect, useState } from "react";
 import { getEvents, registerEvent } from "../api";
+import "./styles.css";
 
 const Student = () => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetchEvents();
+    loadEvents();
   }, []);
 
-  const fetchEvents = async () => {
+  const loadEvents = async () => {
     const res = await getEvents();
-    if (res.status === "ok") {
-      setEvents(res.payload);
-    }
+    if (res.status === "ok") setEvents(res.payload);
   };
 
   const handleRegister = async (eventId) => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!user) {
-      alert("Login first");
-      return;
-    }
-
     const res = await registerEvent(user.id, eventId);
 
     if (res.status === "ok") {
       alert("Registered successfully");
-      fetchEvents();
+      loadEvents();
     } else {
-      alert(res.message || "Registration failed");
+      alert(res.message);
     }
   };
 
+  const getColor = (e) => {
+    const percent = (e.registered / e.capacity) * 100;
+
+    if (percent >= 80) return "red";
+    if (percent >= 50) return "orange";
+    return "green";
+  };
+
   return (
-    <div>
-      <h2>Student Dashboard</h2>
+    <div className="container">
+      <h1 className="title">Student Dashboard</h1>
 
-      {events.map((event) => (
-        <div key={event.id}>
-          <h3>{event.name}</h3>
-          <p>
-            {event.date} | {event.venue}
-          </p>
+      <div className="grid">
+        {events.map((e) => {
+          const color = getColor(e);
 
-          <button onClick={() => handleRegister(event.id)}>
-            Register
-          </button>
-        </div>
-      ))}
+          return (
+            <div className={`card ${color}`} key={e.id}>
+              <h2>{e.name}</h2>
+
+              <p>{e.date} • {e.venue}</p>
+
+              <p>
+                Capacity: {e.capacity} <br />
+                Registered: {e.registered} <br />
+                Remaining: {e.capacity - e.registered}
+              </p>
+
+              <button
+                className="btn"
+                disabled={e.registered >= e.capacity}
+                onClick={() => handleRegister(e.id)}
+              >
+                {e.registered >= e.capacity ? "FULL" : "Register"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

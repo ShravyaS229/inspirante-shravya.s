@@ -3,14 +3,25 @@ import db from "../db.js";
 
 const router = express.Router();
 
-// GET ALL EVENTS
+// GET EVENTS WITH ANALYTICS
 router.get("/", (req, res) => {
-  db.all("SELECT * FROM events ORDER BY date ASC", [], (err, rows) => {
+  const query = `
+    SELECT 
+      e.id,
+      e.name,
+      e.date,
+      e.venue,
+      e.capacity,
+      COUNT(r.id) AS registered
+    FROM events e
+    LEFT JOIN registrations r ON e.id = r.event_id
+    GROUP BY e.id
+    ORDER BY e.date ASC
+  `;
+
+  db.all(query, [], (err, rows) => {
     if (err) {
-      return res.status(500).json({
-        status: "error",
-        message: err.message
-      });
+      return res.json({ status: "error", message: err.message });
     }
 
     res.json({
@@ -20,25 +31,19 @@ router.get("/", (req, res) => {
   });
 });
 
-// CREATE EVENT (ADMIN)
+// CREATE EVENT
 router.post("/", (req, res) => {
   const { name, date, venue, capacity } = req.body;
 
   db.run(
-    "INSERT INTO events (name,date,venue,capacity) VALUES (?,?,?,?)",
+    "INSERT INTO events(name,date,venue,capacity) VALUES(?,?,?,?)",
     [name, date, venue, capacity],
     function (err) {
       if (err) {
-        return res.status(500).json({
-          status: "error",
-          message: err.message
-        });
+        return res.json({ status: "error", message: err.message });
       }
 
-      res.json({
-        status: "ok",
-        payload: { id: this.lastID }
-      });
+      res.json({ status: "ok", payload: { id: this.lastID } });
     }
   );
 });

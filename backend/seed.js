@@ -36,7 +36,7 @@ db.serialize(() => {
     ["Tech Symposium 2026", "2026-07-10", "Main Auditorium", 120],
     ["Hackathon", "2026-07-15", "Lab Block C", 40],
     ["Cultural Fest", "2026-07-20", "Open Amphitheatre", 300],
-    ["Workshop: React Basics", "2026-07-22", "Seminar Hall 2", 30],
+    ["Workshop: React Basics", "2026-07-22", "Seminar Hall 2", 5],
     ["Placement Prep Talk", "2026-07-25", "Main Auditorium", 200],
   ];
 
