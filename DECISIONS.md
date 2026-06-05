@@ -1,0 +1,5 @@
+# DECISIONS.md
+
+ i)I chose React for the frontend because it provides a clean component-based structure and efficient state handling, Node.js with Express for the backend because it is lightweight and ideal for building REST APIs quickly, and MySQL as the database because the application has clearly structured relational data between users, events, and registrations which fits SQL design naturally.  
+ ii)I added a unique constraint on the registrations table for user_id and event_id so that a student cannot register for the same event twice at the database level, which ensures data integrity even if frontend validation fails or is bypassed.  
+iii)With more time I would implement JWT-based authentication instead of simple login, improve UI responsiveness and UX polish, add search and filtering for events, and deploy the full stack application to a cloud platform for better accessibility.
