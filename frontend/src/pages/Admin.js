@@ -6,7 +6,6 @@ const formatDate = (date) => {
   if (!date) return "N/A";
 
   const d = new Date(date);
-
   if (isNaN(d.getTime())) return "Invalid Date";
 
   const day = String(d.getDate()).padStart(2, "0");
@@ -73,7 +72,6 @@ const Admin = () => {
 
     if (percent >= 80) return "red";
     if (percent >= 50) return "orange";
-
     return "green";
   };
 
@@ -94,7 +92,10 @@ const Admin = () => {
           type="date"
           value={form.event_date}
           onChange={(e) =>
-            setForm({ ...form, event_date: e.target.value })
+            setForm({
+              ...form,
+              event_date: e.target.value
+            })
           }
         />
 
@@ -111,42 +112,62 @@ const Admin = () => {
           placeholder="Capacity"
           value={form.capacity}
           onChange={(e) =>
-            setForm({ ...form, capacity: e.target.value })
+            setForm({
+              ...form,
+              capacity: e.target.value
+            })
           }
         />
 
-        <button className="btn" onClick={handleCreate}>
+        <button
+          className="btn"
+          onClick={handleCreate}
+        >
           Create Event
         </button>
       </div>
 
       <div className="grid">
-        {events.map((e) => (
-          <div
-            key={e.id}
-            className={`card ${getColorClass(
-              e.registered,
-              e.capacity
-            )}`}
-          >
-            <h2>{e.name}</h2>
+        {events.map((e) => {
+          const fillPercent = Math.round(
+            (e.registered / e.capacity) * 100
+          );
 
-            <p>
-              {formatDate(e.event_date)} • {e.venue}
-            </p>
-
-            <p>Capacity: {e.capacity}</p>
-            <p>Registered: {e.registered}</p>
-            <p>Remaining: {e.capacity - e.registered}</p>
-
-            <button
-              className="btn"
-              onClick={() => viewRegs(e.id)}
+          return (
+            <div
+              className={`card ${getColorClass(
+                e.registered,
+                e.capacity
+              )}`}
+              key={e.id}
             >
-              View Registrations
-            </button>
-          </div>
-        ))}
+              <h2>{e.name}</h2>
+
+              <p>
+                {formatDate(e.event_date)} • {e.venue}
+              </p>
+
+              <p>Capacity: {e.capacity}</p>
+              <p>Registered: {e.registered}</p>
+              <p>
+                Remaining: {e.capacity - e.registered}
+              </p>
+
+              <p>
+                <strong>
+                  Fill Percentage: {fillPercent}%
+                </strong>
+              </p>
+
+              <button
+                className="btn"
+                onClick={() => viewRegs(e.id)}
+              >
+                View Registrations
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {selected && (
