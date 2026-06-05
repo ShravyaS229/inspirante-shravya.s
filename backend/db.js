@@ -1,35 +1,17 @@
-import sqlite3 from "sqlite3";
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
-const db = new sqlite3.Database("./database.db");
+dotenv.config();
 
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      username TEXT UNIQUE,
-      password TEXT,
-      role TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS events (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      date TEXT,
-      venue TEXT,
-      capacity INTEGER
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS registrations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      event_id INTEGER
-    )
-  `);
+const db = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "shravyabhat_0409",
+  database: process.env.DB_NAME || "inspirante_portal",
+  waitForConnections: true,
+  connectionLimit: 10
 });
+
+console.log("MySQL connected successfully");
 
 export default db;

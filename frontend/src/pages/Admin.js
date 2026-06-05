@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
-import {
-  getEvents,
-  createEvent,
-  getEventRegistrations
-} from "../api";
+import { getEvents, createEvent, getEventRegistrations } from "../api";
 import "./styles.css";
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("en-GB");
+  if (!date) return "N/A";
+
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "Invalid Date";
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = String(d.getFullYear()).slice(-2);
+
+  return `${day}-${month}-${year}`;
 };
 
 const Admin = () => {
@@ -28,34 +33,19 @@ const Admin = () => {
 
   const loadEvents = async () => {
     const res = await getEvents();
-
-    if (res.status === "ok") {
-      setEvents(res.payload);
-    }
+    if (res.status === "ok") setEvents(res.payload);
   };
 
   const handleCreate = async () => {
     const res = await createEvent(form);
-
     if (res.status === "ok") {
       alert("Event created");
-
-      setForm({
-        name: "",
-        date: "",
-        venue: "",
-        capacity: ""
-      });
-
       loadEvents();
-    } else {
-      alert(res.message);
     }
   };
 
   const viewRegs = async (eventId) => {
     const res = await getEventRegistrations(eventId);
-
     if (res.status === "ok") {
       setUsers(res.payload);
       setSelected(eventId);
@@ -64,86 +54,31 @@ const Admin = () => {
 
   const getColorClass = (registered, capacity) => {
     const percent = (registered / capacity) * 100;
-
     if (percent >= 80) return "red";
     if (percent >= 50) return "orange";
-
     return "green";
   };
-
-  const totalEvents = events.length;
-
-  const totalRegistrations = events.reduce(
-    (sum, e) => sum + Number(e.registered),
-    0
-  );
 
   return (
     <div className="container">
       <h1 className="title">Admin Dashboard</h1>
 
-      <div className="analytics">
-        <div className="a-card">
-          <h3>Total Events</h3>
-          <h2>{totalEvents}</h2>
-        </div>
-
-        <div className="a-card">
-          <h3>Total Registrations</h3>
-          <h2>{totalRegistrations}</h2>
-        </div>
-      </div>
-
       <div className="form">
-        <input
-          placeholder="Event Name"
-          value={form.name}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              name: e.target.value
-            })
-          }
+        <input placeholder="Name"
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
-
-        <input
-          type="date"
-          value={form.date}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              date: e.target.value
-            })
-          }
+        <input type="date"
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
         />
-
-        <input
-          placeholder="Venue"
-          value={form.venue}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              venue: e.target.value
-            })
-          }
+        <input placeholder="Venue"
+          onChange={(e) => setForm({ ...form, venue: e.target.value })}
         />
-
-        <input
-          type="number"
+        <input type="number"
           placeholder="Capacity"
-          value={form.capacity}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              capacity: e.target.value
-            })
-          }
+          onChange={(e) => setForm({ ...form, capacity: e.target.value })}
         />
 
-        <button
-          className="btn"
-          onClick={handleCreate}
-        >
+        <button className="btn" onClick={handleCreate}>
           Create Event
         </button>
       </div>
@@ -151,46 +86,17 @@ const Admin = () => {
       <div className="grid">
         {events.map((e) => (
           <div
+            className={`card ${getColorClass(e.registered, e.capacity)}`}
             key={e.id}
-            className={`card ${getColorClass(
-              Number(e.registered),
-              Number(e.capacity)
-            )}`}
           >
             <h2>{e.name}</h2>
+            <p>{formatDate(e.event_date)} • {e.venue}</p>
 
-            <p>{formatDate(e.date)}</p>
+            <p>Capacity: {e.capacity}</p>
+            <p>Registered: {e.registered}</p>
+            <p>Remaining: {e.capacity - e.registered}</p>
 
-            <p>{e.venue}</p>
-
-            <p>
-              Capacity: <b>{e.capacity}</b>
-            </p>
-
-            <p>
-              Registered: <b>{e.registered}</b>
-            </p>
-
-            <p>
-              Remaining: <b>{e.capacity - e.registered}</b>
-            </p>
-
-            <p>
-              Fill Percentage:{" "}
-              <b>
-                {Math.round(
-                  (Number(e.registered) /
-                    Number(e.capacity)) *
-                    100
-                )}
-                %
-              </b>
-            </p>
-
-            <button
-              className="btn"
-              onClick={() => viewRegs(e.id)}
-            >
+            <button className="btn" onClick={() => viewRegs(e.id)}>
               View Registrations
             </button>
           </div>
@@ -199,15 +105,12 @@ const Admin = () => {
 
       {selected && (
         <div className="card">
-          <h2>Registered Students</h2>
-
+          <h3>Registered Students</h3>
           {users.length === 0 ? (
             <p>No registrations yet</p>
           ) : (
             users.map((u) => (
-              <p key={u.id}>
-                {u.name} ({u.username})
-              </p>
+              <p key={u.id}>{u.name} ({u.username})</p>
             ))
           )}
         </div>
